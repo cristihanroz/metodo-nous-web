@@ -184,6 +184,11 @@ p { margin: 0; text-wrap: pretty; }
   text-decoration: none;
   text-transform: uppercase;
 }
+.brand img { width: auto; height: 24px; }
+.brand-footer img { height: 20px; opacity: 0.85; }
+
+.hero-mark { display: block; width: 64px; height: auto; margin: 0 auto 22px; opacity: 0.9; }
+
 .brand-mark {
   display: grid;
   place-items: center;
@@ -529,15 +534,14 @@ p { margin: 0; text-wrap: pretty; }
   background: linear-gradient(160deg, rgba(201, 164, 92, 0.1), rgba(201, 164, 92, 0.02) 55%), var(--surface);
   overflow: hidden;
 }
-.manifesto::before {
-  content: "\201C";
+.manifesto-mark {
   position: absolute;
-  top: -30px;
+  top: 18px;
   right: 18px;
-  color: rgba(201, 164, 92, 0.14);
-  font-family: Georgia, serif;
-  font-size: 200px;
-  line-height: 1;
+  width: 120px;
+  height: auto;
+  opacity: 0.07;
+  pointer-events: none;
 }
 .manifesto h4 { color: var(--gold-2); font-size: clamp(18px, 2vw, 22px); font-weight: 500; letter-spacing: 0.12em; }
 .manifesto p { position: relative; margin-top: 18px; color: var(--text); font-size: clamp(16px, 1.6vw, 18px); line-height: 1.75; }
