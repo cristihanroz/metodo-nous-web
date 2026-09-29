@@ -436,6 +436,11 @@ p { margin: 0; text-wrap: pretty; }
   overflow: hidden;
   transition: transform 0.45s var(--ease), border-color 0.45s var(--ease), box-shadow 0.45s var(--ease);
 }
+.caso-card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc(50% - clamp(16px, 2.2vw, 28px) / 2);
+}
 .caso-card:hover {
   transform: translateY(-6px);
   border-color: var(--gold-line);
@@ -742,6 +747,7 @@ p { margin: 0; text-wrap: pretty; }
   .nav .btn-ghost { display: none; }
   .grid-casos,
   .video-grid-placeholder { grid-template-columns: 1fr; }
+  .caso-card:last-child:nth-child(odd) { width: 100%; }
   .hero .btn-cta { width: 100%; }
   .btn-cta { padding-inline: 22px; letter-spacing: 0.05em; }
   .sticky-cta { display: block; }
