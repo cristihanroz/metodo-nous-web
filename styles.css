@@ -422,7 +422,8 @@ p { margin: 0; text-wrap: pretty; }
 /* ---------- Results ---------- */
 .grid-casos {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: clamp(16px, 2.2vw, 28px);
 }
 
@@ -443,13 +444,13 @@ p { margin: 0; text-wrap: pretty; }
 
 .caso-media {
   position: relative;
-  aspect-ratio: 4 / 5;
+  min-height: 220px;
   background:
     repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0 12px, transparent 12px 24px),
     var(--surface-2);
   overflow: hidden;
 }
-.caso-media img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s var(--ease); }
+.caso-media img { position: relative; z-index: 1; width: 100%; height: auto; transition: transform 0.8s var(--ease); }
 .caso-card:hover .caso-media img { transform: scale(1.04); }
 .caso-media::before {
   content: attr(data-label);
@@ -729,7 +730,6 @@ p { margin: 0; text-wrap: pretty; }
    Responsive
    ========================================================================== */
 @media (max-width: 980px) {
-  .grid-casos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .split,
   .philosophy .split { grid-template-columns: 1fr; }
   .qualification .portrait { max-width: 460px; aspect-ratio: 5 / 4; }
