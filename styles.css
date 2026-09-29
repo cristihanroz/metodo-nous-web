@@ -326,6 +326,13 @@ p { margin: 0; text-wrap: pretty; }
     var(--poster, none) center 25% / cover no-repeat,
     var(--surface);
 }
+.video-placeholder.is-thumb {
+  background:
+    radial-gradient(ellipse at center, rgba(10, 10, 11, 0.15), rgba(10, 10, 11, 0.6)),
+    var(--poster) center / cover no-repeat,
+    var(--surface);
+}
+.video-placeholder.is-thumb [data-video-label] { padding: 6px 14px; border-radius: 999px; background: rgba(10, 10, 11, 0.65); color: var(--text); }
 .play-btn {
   display: grid;
   place-items: center;
