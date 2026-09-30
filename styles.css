@@ -309,10 +309,6 @@ p { margin: 0; text-wrap: pretty; }
 }
 .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-/* Miniatura encima del reproductor: deja pasar el toque a Vimeo y se oculta al reproducir */
-.is-armed > :not(iframe) { position: relative; z-index: 1; pointer-events: none; transition: opacity 0.4s var(--ease), visibility 0.4s; }
-.is-armed > .video-placeholder { position: absolute; }
-.is-armed.is-playing > :not(iframe) { opacity: 0; visibility: hidden; }
 
 .video-placeholder {
   position: absolute;
