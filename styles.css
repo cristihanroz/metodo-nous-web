@@ -697,6 +697,24 @@ p { margin: 0; text-wrap: pretty; }
   text-transform: none;
 }
 
+.cita-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 16px 24px 16px 16px;
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: left;
+}
+.cita-card[hidden] { display: none; }
+.cita-icon { display: grid; place-items: center; flex: none; width: 48px; height: 48px; border-radius: 12px; background: var(--gold-soft); color: var(--gold-2); }
+.cita-icon svg { width: 24px; height: 24px; }
+.cita-label { display: block; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; }
+.cita-card strong { display: block; margin-top: 2px; font-family: var(--font-display); font-size: 22px; font-weight: 500; text-transform: uppercase; }
+.cita-card #cita-hora { display: block; color: var(--gold-2); font-size: 15px; }
+
 .video-container-thanks { max-width: 920px; margin: clamp(40px, 6vw, 60px) auto 0; }
 
 .watch-note {

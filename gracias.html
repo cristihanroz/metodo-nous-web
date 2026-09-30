@@ -30,7 +30,19 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
                 </span>
                 <h1 class="reveal" data-delay="1">¡Tu auditoría está <span class="gold">confirmada!</span></h1>
-                <h2 class="reveal" data-delay="2">Felicidades por tomar acción. Estás a un paso de tu transformación.</h2>
+                <h2 class="reveal" data-delay="2"><span id="saludo">Felicidades por tomar acción.</span> Estás a un paso de tu transformación.</h2>
+
+                <!-- Se rellena con los datos que envía Calendly al redirigir (ver script al final) -->
+                <div class="cita-card reveal" id="cita" hidden>
+                    <span class="cita-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>
+                    </span>
+                    <div>
+                        <span class="cita-label">Tu llamada de auditoría</span>
+                        <strong id="cita-fecha"></strong>
+                        <span id="cita-hora"></span>
+                    </div>
+                </div>
 
                 <!-- Video de agradecimiento de Cristihan (Vimeo): pon el ID en data-vimeo-id -->
                 <div class="video-container-thanks reveal" data-delay="3">
@@ -105,5 +117,26 @@
 
     <script src="main.js" defer></script>
     <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+    <script>
+        // Datos que Calendly agrega a la URL ("Pasar los datos del evento a su página redirigida")
+        (function () {
+            var q = new URLSearchParams(window.location.search);
+            var nombre = (q.get('invitee_first_name') || (q.get('invitee_full_name') || '').split(' ')[0] || '').trim();
+            if (nombre) {
+                document.getElementById('saludo').textContent = '¡Felicidades por tomar acción, ' + nombre + '!';
+            }
+
+            var inicio = q.get('event_start_time');
+            var fecha = inicio ? new Date(inicio) : null;
+            if (fecha && !isNaN(fecha)) {
+                var dia = new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' }).format(fecha);
+                var hora = new Intl.DateTimeFormat('es', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(fecha);
+                var coach = (q.get('assigned_to') || '').trim();
+                document.getElementById('cita-fecha').textContent = dia.charAt(0).toUpperCase() + dia.slice(1);
+                document.getElementById('cita-hora').textContent = hora + (coach ? ' · con ' + coach : '');
+                document.getElementById('cita').hidden = false;
+            }
+        })();
+    </script>
 </body>
 </html>

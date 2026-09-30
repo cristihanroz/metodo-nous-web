@@ -336,11 +336,12 @@
                     });
                 });
 
-                // Al agendar, redirige a la página de gracias
+                // Al agendar: Calendly redirige a gracias.html con los datos de la cita
+                // (configurado en Calendly). Si en 2,5 s no lo ha hecho, redirigimos sin datos.
                 window.addEventListener('message', function (e) {
                     if (e.origin !== 'https://calendly.com') return;
                     if (e.data && e.data.event === 'calendly.event_scheduled') {
-                        window.location.href = 'gracias.html';
+                        setTimeout(function () { window.location.href = 'gracias.html'; }, 2500);
                     }
                 });
             </script>
