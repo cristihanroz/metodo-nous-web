@@ -27,34 +27,51 @@
   }
 
   // Videos de Vimeo: basta con poner el ID en data-vimeo-id.
-  // Se carga el reproductor al hacer clic (la página carga más rápido).
+  // El reproductor se carga debajo de la miniatura y el toque/clic pasa directo a Vimeo,
+  // así el video arranca CON SONIDO también en iPhone (Safari solo permite audio si el
+  // toque ocurre dentro del reproductor). Al empezar a reproducir, la miniatura se oculta.
+  var vimeoFrames = [];
   document.querySelectorAll('[data-vimeo-id]').forEach(function (frame) {
     var id = (frame.getAttribute('data-vimeo-id') || '').trim();
     if (!id) return;
 
     var label = frame.querySelector('[data-video-label]');
     if (label) label.textContent = frame.getAttribute('data-ready-label') || 'Ver video';
-    frame.style.cursor = 'pointer';
-    frame.setAttribute('role', 'button');
-    frame.setAttribute('tabindex', '0');
 
-    function load() {
-      if (frame.querySelector('iframe')) return;
-      var iframe = document.createElement('iframe');
-      iframe.src = 'https://player.vimeo.com/video/' + encodeURIComponent(id) + '?autoplay=1&title=0&byline=0&portrait=0&dnt=1';
-      iframe.allow = 'autoplay; fullscreen; picture-in-picture';
-      iframe.allowFullscreen = true;
-      iframe.title = frame.getAttribute('aria-label') || 'Video';
-      frame.removeAttribute('role');
-      frame.removeAttribute('tabindex');
-      frame.style.cursor = '';
-      frame.appendChild(iframe);
-    }
-    frame.addEventListener('click', load);
-    frame.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); load(); }
-    });
+    var iframe = document.createElement('iframe');
+    iframe.src = 'https://player.vimeo.com/video/' + encodeURIComponent(id) + '?title=0&byline=0&portrait=0&playsinline=1&dnt=1';
+    iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+    iframe.allowFullscreen = true;
+    iframe.loading = 'lazy';
+    iframe.title = frame.getAttribute('aria-label') || 'Video';
+    frame.insertBefore(iframe, frame.firstChild);
+    frame.classList.add('is-armed');
+    vimeoFrames.push({ frame: frame, iframe: iframe });
   });
+
+  function markPlaying(frame) { frame.classList.add('is-playing'); }
+
+  if (vimeoFrames.length) {
+    var sdk = document.createElement('script');
+    sdk.src = 'https://player.vimeo.com/api/player.js';
+    sdk.async = true;
+    sdk.onload = function () {
+      vimeoFrames.forEach(function (v) {
+        var player = new window.Vimeo.Player(v.iframe);
+        player.on('play', function () { markPlaying(v.frame); });
+      });
+    };
+    document.head.appendChild(sdk);
+
+    // Respaldo: si el foco entra al reproductor (clic/toque), ocultar la miniatura
+    window.addEventListener('blur', function () {
+      setTimeout(function () {
+        vimeoFrames.forEach(function (v) {
+          if (document.activeElement === v.iframe) markPlaying(v.frame);
+        });
+      }, 0);
+    });
+  }
 
   // Imágenes de casos de éxito que aún no existen: se ocultan y queda el placeholder
   document.querySelectorAll('.caso-media img').forEach(function (img) {
