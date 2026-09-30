@@ -27,40 +27,67 @@
   }
 
   // Videos de Vimeo: basta con poner el ID en data-vimeo-id.
-  // - Computador: se muestra nuestra miniatura y al hacer clic se carga el video con autoplay.
-  // - Celular/tablet: se muestra directamente el reproductor de Vimeo (con la miniatura
-  //   configurada en Vimeo). Así el toque ocurre dentro del reproductor y iPhone permite sonido.
-  var isTouch = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  // Se muestra la miniatura 2 s y luego el video arranca solo, EN SILENCIO (los navegadores
+  // no permiten arrancar con sonido sin un toque). Encima aparece "Toca para activar el sonido":
+  // al tocarlo, el video vuelve al inicio y sigue con sonido.
+  var AUTOPLAY_DELAY = 2000;
+  var sdkPromise = null;
+  function loadVimeoSDK() {
+    if (window.Vimeo && window.Vimeo.Player) return Promise.resolve(window.Vimeo);
+    if (sdkPromise) return sdkPromise;
+    sdkPromise = new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = 'https://player.vimeo.com/api/player.js';
+      s.async = true;
+      s.onload = function () { resolve(window.Vimeo); };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+    return sdkPromise;
+  }
+
+  var soundIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>';
 
   document.querySelectorAll('[data-vimeo-id]').forEach(function (frame) {
     var id = (frame.getAttribute('data-vimeo-id') || '').trim();
     if (!id) return;
 
-    function embed(autoplay) {
-      if (frame.querySelector('iframe')) return;
+    var base = 'https://player.vimeo.com/video/' + encodeURIComponent(id) + '?title=0&byline=0&portrait=0&playsinline=1&dnt=1';
+    var label = frame.querySelector('[data-video-label]');
+    if (label) label.textContent = 'El video comienza en un momento…';
+    loadVimeoSDK().catch(function () {});
+
+    setTimeout(function () {
       var iframe = document.createElement('iframe');
-      iframe.src = 'https://player.vimeo.com/video/' + encodeURIComponent(id) + '?title=0&byline=0&portrait=0&playsinline=1&dnt=1' + (autoplay ? '&autoplay=1' : '');
+      iframe.src = base + '&autoplay=1&muted=1';
       iframe.allow = 'autoplay; fullscreen; picture-in-picture';
       iframe.allowFullscreen = true;
       iframe.title = frame.getAttribute('aria-label') || 'Video';
-      frame.removeAttribute('role');
-      frame.removeAttribute('tabindex');
-      frame.style.cursor = '';
-      Array.prototype.slice.call(frame.children).forEach(function (child) { frame.removeChild(child); });
+      Array.prototype.slice.call(frame.children).forEach(function (c) { frame.removeChild(c); });
       frame.appendChild(iframe);
-    }
 
-    if (isTouch) { embed(false); return; }
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'unmute-btn';
+      btn.innerHTML = soundIcon + '<span>Toca para activar el sonido</span>';
+      frame.appendChild(btn);
 
-    var label = frame.querySelector('[data-video-label]');
-    if (label) label.textContent = frame.getAttribute('data-ready-label') || 'Ver video';
-    frame.style.cursor = 'pointer';
-    frame.setAttribute('role', 'button');
-    frame.setAttribute('tabindex', '0');
-    frame.addEventListener('click', function () { embed(true); });
-    frame.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); embed(true); }
-    });
+      var player = null;
+      loadVimeoSDK().then(function (Vimeo) { player = new Vimeo.Player(iframe); }).catch(function () {});
+
+      btn.addEventListener('click', function () {
+        btn.remove();
+        if (player) {
+          player.setMuted(false).catch(function () {});
+          player.setVolume(1).catch(function () {});
+          player.setCurrentTime(0).catch(function () {});
+          player.play().catch(function () {});
+        } else {
+          // Sin SDK: recargar el video desde el inicio con sonido
+          iframe.src = base + '&autoplay=1';
+        }
+      });
+    }, AUTOPLAY_DELAY);
   });
 
   // Imágenes de casos de éxito que aún no existen: se ocultan y queda el placeholder
