@@ -52,18 +52,44 @@
   function markPlaying(frame) { frame.classList.add('is-playing'); }
 
   if (vimeoFrames.length) {
+    // 1) Escucha directa de los mensajes del reproductor de Vimeo (sin depender del SDK)
+    function subscribe(v) {
+      try {
+        ['play', 'playProgress', 'timeupdate'].forEach(function (ev) {
+          v.iframe.contentWindow.postMessage(JSON.stringify({ method: 'addEventListener', value: ev }), 'https://player.vimeo.com');
+        });
+      } catch (err) {}
+    }
+    vimeoFrames.forEach(function (v) { v.iframe.addEventListener('load', function () { subscribe(v); }); });
+
+    window.addEventListener('message', function (e) {
+      if (!/^https:\/\/player\.vimeo\.com$/.test(e.origin)) return;
+      var data = e.data;
+      if (typeof data === 'string') { try { data = JSON.parse(data); } catch (err) { return; } }
+      if (!data || !data.event) return;
+      vimeoFrames.forEach(function (v) {
+        if (e.source !== v.iframe.contentWindow) return;
+        if (data.event === 'ready') subscribe(v);
+        if (data.event === 'play' || data.event === 'playProgress' || data.event === 'timeupdate' || data.event === 'playing') markPlaying(v.frame);
+      });
+    });
+
+    // 2) SDK oficial de Vimeo como segunda vía
     var sdk = document.createElement('script');
     sdk.src = 'https://player.vimeo.com/api/player.js';
     sdk.async = true;
     sdk.onload = function () {
       vimeoFrames.forEach(function (v) {
-        var player = new window.Vimeo.Player(v.iframe);
-        player.on('play', function () { markPlaying(v.frame); });
+        try {
+          var player = new window.Vimeo.Player(v.iframe);
+          player.on('play', function () { markPlaying(v.frame); });
+          player.on('timeupdate', function () { markPlaying(v.frame); });
+        } catch (err) {}
       });
     };
     document.head.appendChild(sdk);
 
-    // Respaldo: si el foco entra al reproductor (clic/toque), ocultar la miniatura
+    // 3) Respaldo: si el foco entra al reproductor (clic/toque), ocultar la miniatura
     window.addEventListener('blur', function () {
       setTimeout(function () {
         vimeoFrames.forEach(function (v) {
