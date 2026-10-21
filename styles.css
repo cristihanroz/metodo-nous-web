@@ -639,6 +639,7 @@ p { margin: 0; text-wrap: pretty; }
 /* ---------- Booking ---------- */
 .booking-zone { background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201, 164, 92, 0.1), transparent 70%), var(--bg); scroll-margin-top: 72px; }
 .booking-zone h3 { font-size: clamp(28px, 4vw, 48px); }
+.booking-zone .booking-title { font-size: clamp(18px, 5.9vw, 46px); }
 
 .booking-card {
   max-width: 1040px;
